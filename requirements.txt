@@ -1,0 +1,7 @@
+black # 格式化库
+decorator # 装饰器库
+vthread # 异步线程库  https://github.com/cilame/vthread 或者使用 concurrent.futures
+orjson~=3.9.13
+pandas~=2.2.0
+jupyter
+httpx
