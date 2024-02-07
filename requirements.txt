@@ -5,3 +5,5 @@ orjson~=3.9.13
 pandas~=2.2.0
 jupyter
 httpx
+fastapi
+uvicorn

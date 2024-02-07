@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>12306spy</title>
+    <!-- 请勿在项目正式环境中引用该 layui.css 地址 -->
+    <link href="/web/layui/css/layui.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="layui-progress" style="margin: 15px 0 30px">
+      <div class="layui-progress-bar" lay-percent="100%"></div>
+    </div>
+
+    <form class="layui-form" action="">
+      <div class="layui-form-item">
+        <label class="layui-form-label">出发站</label>
+        <div class="layui-input-block">
+          <input
+            type="text"
+            name="station_start"
+            lay-verify="title"
+            autocomplete="off"
+            lay-verify="required"
+            placeholder="赣榆"
+            value="赣榆"
+            class="layui-input" />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">目标站</label>
+        <div class="layui-input-block">
+          <input
+            name="station_end"
+            placeholder="常州"
+            value="常州"
+            autocomplete="off"
+            lay-verify="required"
+            class="layui-input" />
+        </div>
+      </div>
+      <!-- 出发日期, 使用时间选择器 -->
+      <div class="layui-form-item">
+        <label class="layui-form-label">验证日期</label>
+        <div class="layui-input-inline layui-input-wrap">
+          <div class="layui-input-prefix">
+            <i class="layui-icon layui-icon-date"></i>
+          </div>
+          <input
+            type="text"
+            name="date"
+            id="id-train-date"
+            placeholder="MM-dd"
+            autocomplete="off"
+            class="layui-input" />
+        </div>
+      </div>
+      <div class="layui-form-item">
+        <label class="layui-form-label">车次</label>
+        <!-- 下拉菜单,通过query_trains接口查询 -->
+        <div class="layui-input-block">
+          <input
+            id="train-search-more"
+            name="filter_train_name"
+            placeholder="选择指定车次"
+            value="D2923"
+            lay-verify="required"
+            autocomplete="off"
+            lay-search
+            class="layui-input" />
+          <!-- <select name="filter_train_name" id="train-search-more">
+            <option value="">请选择</option>
+          </select> -->
+        </div>
+      </div>
+
+      <!-- <div class="layui-form-item">
+        <label class="layui-form-label">test</label>
+        <div class="layui-input-block">
+          <input
+            name="is_test"
+            placeholder="true"
+            value="True"
+            lay-verify="required"
+            autocomplete="off"
+            class="layui-input" />
+        </div>
+      </div> -->
+
+      <!-- 提交 -->
+      <div class="layui-form-item">
+        <div class="layui-input-block">
+          <button
+            type="submit"
+            class="layui-btn"
+            lay-submit
+            lay-filter="demo-val">
+            提交
+          </button>
+          <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+          <button
+            type="button"
+            class="layui-btn layui-btn-primary"
+            id="ID-btn-clean-result">
+            清空结果
+          </button>
+        </div>
+      </div>
+    </form>
+
+    <!-- 换行 -->
+    <hr />
+
+    <!-- 增加一个10列的表格 -->
+    <p id="ID-table-title"></p>
+    <table class="layui-table" id="ID-table-demo-init"></table>
+
+    <!-- 请勿在项目正式环境中引用该 layui.js 地址 -->
+    <script src="/web/layui/layui.js"></script>
+    <script>
+      layui.use(function () {
+        var $ = layui.$;
+        var form = layui.form;
+        var dropdown = layui.dropdown;
+
+        layui.use(function () {
+          var laydate = layui.laydate;
+          // 渲染
+          laydate.render({
+            elem: "#id-train-date",
+            format: "yyyy-MM-dd", // 设置日期格式
+            value: new Date(), // 设置默认日期为今天
+          });
+        });
+
+        // 绑定 ID-btn-clean result 的点击时间
+        $("#ID-btn-clean-result").on("click", function () {
+          layui.use(["table"], function () {
+            var table = layui.table;
+
+            // 假设你的表格ID是'ID-table-demo-init'
+            // 重新加载表格，使用空数据
+            table.reload("ID-table-demo-init", {
+              data: [], // 使用空数组作为数据，这将清空表格
+            });
+          });
+          $("#ID-table-title").text("查询结果 : ");
+        });
+
+        // 提交事件
+        form.on("submit(demo-val)", function (data) {
+          var field = data.field; // 获取表单字段值
+          // 显示填写结果，仅作演示用
+          // layer.alert(JSON.stringify(field), {
+          //   title: "当前填写的字段值",
+          // });
+          // 在页面上增加一个loading的提示框
+          var loading = layer.load(0, {
+            shade: false,
+          });
+          var table = layui.table;
+          // 清空之前的表格
+          table.reload("ID-table-demo-init", {
+            data: [], // 使用空数组作为数据，这将清空表格
+          });
+
+          $.get("/query_any_seat", field, function (d) {
+            layer.close(loading);
+            if (d.status == "success") {
+              trains_arr = d.data;
+              if (trains_arr.length == 0) {
+                layer.alert("查询错误: " + d.data, {
+                  title: "提示",
+                });
+                return false;
+              }
+              train_index_0 = trains_arr[0];
+              // train_index_0的key作为表头
+              var cols = [{ type: "numbers" }];
+              for (let __key in train_index_0) {
+                let key = __key;
+                if (key === "车次链接") {
+                  // link渲染
+                  cols.push({
+                    field: key,
+                    title: key,
+                    templet: function (d) {
+                      return (
+                        '<a href="' +
+                        d[key] +
+                        '" style="color : blue">点击直达</a>'
+                      );
+                    },
+                  });
+                } else if (key === "多余支出(元)" || key === "站票时间(min)") {
+                  // link渲染
+                  cols.push({
+                    field: key,
+                    title: key,
+                    templet: function (d) {
+                      console.log("多余渲染,k=", key, d);
+                      return "<span style='color: red;'>" + d[key] + "</span>";
+                    },
+                  });
+                } else {
+                  let pk = key;
+                  cols.push({ field: key, title: pk });
+                }
+              }
+
+              // 修改 ID-table-title 的内容为当前查询的标题
+              $("#ID-table-title").text(
+                "查询时间 : " + new Date().toLocaleString()
+              );
+              var inst = table.render({
+                elem: "#ID-table-demo-init",
+                //标题栏, 显示当前时间
+                // title: "查询结果 : ",
+                cols: [cols],
+                data: trains_arr,
+                //skin: 'line', // 表格风格
+                //even: true,
+                page: false, // 是否显示分页
+                limits: [5, 10, 15],
+                limit: 5, // 每页默认显示的数量
+              });
+            } else {
+              layer.alert("查询错误: " + d.data, {
+                title: "提示",
+              });
+            }
+          });
+
+          return false; // 阻止默认 form 跳转
+        });
+      });
+    </script>
+  </body>
+</html>
