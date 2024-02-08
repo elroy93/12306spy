@@ -175,3 +175,4 @@ cython_debug/
 #.idea/
 git_toolbox_prj.xml
 workspace.xml
+.idea/
