@@ -2,9 +2,11 @@ import httpx
 import orjson
 # 定义变量
 import pandas as pd
+import vthread
+
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
-pd.set_option('max_colwidth',1000)
+pd.set_option('max_colwidth', 1000)
 
 
 def query_booking_by_station_v3_for_pc(station_start: str, station_end: str, date: str) -> list:
@@ -183,7 +185,6 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     # item_stop_station_names转成df
     pd.DataFrame(item_stop_station_names, columns=["站名"])
 
-
     # 按照起点名和终点名分成两个列表, 进行叉乘, 使用包含, 而不是index, 因为名字可能不一样,但是一定包含
     start_station_index = 0  # 和middle_station_index可能相同
     middle_station_index = 0  # 和end_station_index一定不同
@@ -206,7 +207,6 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     xlist_df.insert(0, "原始车次", train_item["TrainName"])
     xlist_df
 
-
     #
     import time
     import vthread
@@ -219,13 +219,15 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
 
     # 多线程查询
     T1 = time.time()
+
     @vthread.pool(10)
     def xlist_item_job(index, xlist_item_start_station, xlist_item_end_station):
         xlist_item_train_items = query_booking_by_station_v3_for_pc(xlist_item_start_station, xlist_item_end_station,
                                                                     date)
         # 过滤出发车时间是之前dict中的时间的车次
         xlist_item_start_station_departure_time = item_stop_list_station_name_departure_dict[xlist_item_start_station]
-        xlist_item_train_items = [item for item in xlist_item_train_items if str(item["StartTime"]) == str(xlist_item_start_station_departure_time)]
+        xlist_item_train_items = [item for item in xlist_item_train_items if
+                                  str(item["StartTime"]) == str(xlist_item_start_station_departure_time)]
 
         xlist_item_train_items_df = transform_booking_train_items_info_to_dataframe(xlist_item_train_items)
         # 给df增加一列, 起点站和终点站,放到开头
@@ -241,10 +243,9 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     vthread.pool.wait()
     T2 = time.time()
 
-    print(f"查询结束,cost= {int((T2 - T1)*1000)} ms,  查询数量{len(xlist_item_results)},\n {finished_index}")
+    print(f"查询结束,cost= {int((T2 - T1) * 1000)} ms,  查询数量{len(xlist_item_results)},\n {finished_index}")
 
-
-        # 将xlist_item_results合并成一个df, 并且生成index
+    # 将xlist_item_results合并成一个df, 并且生成index
     xlist_item_results_df = pd.concat(xlist_item_results, ignore_index=True)
     # 增加原始车次列
     xlist_item_results_df.insert(0, "原始车次", train_item["TrainName"])
@@ -254,7 +255,8 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     xlist_item_results_df["终点站优先级"] = xlist_item_results_df["终点站"].apply(
         lambda x: abs(item_stop_station_names.index(x) - item_stop_station_names.index(station_end)))
     # 一等座价格排序优先级,
-    xlist_item_results_df["一等座价格优先级"] = xlist_item_results_df["一等座价格"].apply(lambda x: 0 if x is None else x)
+    xlist_item_results_df["一等座价格优先级"] = xlist_item_results_df["一等座价格"].apply(
+        lambda x: 0 if x is None else x)
     xlist_item_results_df = xlist_item_results_df.sort_values(by=["终点站优先级", "一等座价格优先级", "起点站优先级"],
                                                               ascending=[True, True, False])
     # 移除两个优先级列
@@ -266,7 +268,7 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     xlist_item_results_df = xlist_item_results_df.reset_index(drop=True)
     xlist_item_results_df
 
-        # 保留一等座余量或者二等座余量大于0的车次
+    # 保留一等座余量或者二等座余量大于0的车次
     # 打印一下战列列表
     # item_stop_station_names
     for (index, station_name) in enumerate(item_stop_station_names):
@@ -319,7 +321,8 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
         lambda x: x["支出总时间"] / train_time_diff_min, axis=1))
     # 计算一下补票的时间,也就是需要站着的时间
     xlist_item_results_df_has_rest.insert(12, "站票时间(min)", xlist_item_results_df_has_rest.apply(lambda x: int(
-        (train_item_end_time - min(datetime.strptime(x["结束时间"], '%H:%M'), train_item_end_time)).total_seconds() / 60),
+        (train_item_end_time - min(datetime.strptime(x["结束时间"], '%H:%M'),
+                                   train_item_end_time)).total_seconds() / 60),
                                                                                                     axis=1))
 
     xlist_item_results_df_has_rest.insert(13, "二等座全程支出(元)", xlist_item_results_df_has_rest.apply(

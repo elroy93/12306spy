@@ -163,9 +163,11 @@
           table.reload("ID-table-demo-init", {
             data: [], // 使用空数组作为数据，这将清空表格
           });
+          let query_start_time = new Date().getTime();
 
           $.get("/query_any_seat", field, function (d) {
             layer.close(loading);
+            let query_end_time = new Date().getTime();
             if (d.status == "success") {
               trains_arr = d.data;
               if (trains_arr.length == 0) {
@@ -188,7 +190,7 @@
                       return (
                         '<a href="' +
                         d[key] +
-                        '" style="color : blue">点击直达</a>'
+                        '" style="color : blue" target="_blank">点击直达</a>'
                       );
                     },
                   });
@@ -207,10 +209,13 @@
                   cols.push({ field: key, title: pk });
                 }
               }
-
               // 修改 ID-table-title 的内容为当前查询的标题
               $("#ID-table-title").text(
-                "查询时间 : " + new Date().toLocaleString()
+                "查询时间 : " +
+                  new Date().toLocaleString() +
+                  ", 耗时: " +
+                  (query_end_time - query_start_time) +
+                  "ms"
               );
               var inst = table.render({
                 elem: "#ID-table-demo-init",
