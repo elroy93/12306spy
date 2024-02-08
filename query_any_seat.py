@@ -152,6 +152,9 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     # filter_train_names
     TrainItems = [item for item in TrainItems_all if item["TrainName"] in filter_train_names]
 
+    if TrainItems == None or len(TrainItems) == 0:
+        raise Exception("没有找到车次")
+
     train_items_df = transform_booking_train_items_info_to_dataframe(TrainItems)
     train_items_df.insert(0, "起点站", station_start)
     train_items_df.insert(1, "终点站", station_end)
@@ -208,6 +211,9 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     xlist_df = pd.DataFrame(xlist, columns=["起点", "终点"])
     xlist_df.insert(0, "原始车次", train_item["TrainName"])
     xlist_df
+
+    if len(xlist) == 0:
+        raise Exception("没有找到车次")
 
     #
     import time
