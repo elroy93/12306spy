@@ -2,7 +2,6 @@ import httpx
 import orjson
 # 定义变量
 import pandas as pd
-import vthread
 
 pd.set_option('display.max_columns', None)
 pd.set_option('display.max_rows', None)
@@ -158,6 +157,9 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     train_items_df.insert(1, "终点站", station_end)
     train_items_df
     train_item = TrainItems[0]
+    # 修改起点和终点名称
+    station_start = train_item['StartStationName']
+    station_end = train_item['EndStationName']
     # 获取二等座价格
     train_item_second_price = next(
         (ticket["Price"] for ticket in train_item["TicketResult"]["TicketItems"] if ticket["SeatTypeName"] == "二等座"),
@@ -199,8 +201,8 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     xlist = []
     # index生成器
     index_generator = (i for i in range(0, 10000000))
-    for i in range(start_station_index, middle_station_index):
-        for j in range(middle_station_index + 1, end_station_index):
+    for i in range(start_station_index, middle_station_index + 1):
+        for j in range(middle_station_index + 1, len(item_stop_station_names)):
             xlist.append([item_stop_station_names[i], item_stop_station_names[j]])
 
     xlist_df = pd.DataFrame(xlist, columns=["起点", "终点"])

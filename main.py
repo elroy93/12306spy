@@ -66,6 +66,10 @@ def read_item(station_start: str, station_end: str, date: str, filter_train_name
             "data": orjson.loads(trains_json_str)
         }
     except Exception as e:
+        # 打印异常堆栈
+        import traceback
+        traceback.print_exc()
+        
         return {
             "status": "fail",
             "data": str(e)
