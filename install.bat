@@ -37,7 +37,7 @@ echo current path : %cd%
 echo installing dependencies from requirements.txt...
 :: 更新pip
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 powershell -command "Write-Host '--------------------------' -ForegroundColor Green"
 powershell -command "Write-Host '     install success      ' -ForegroundColor Green"
