@@ -5,7 +5,5 @@ with open("data.json", "r", encoding="utf-8") as f:
     orjson.loads(data)
     print(orjson.loads(data))
 
-
-
-for i in range(0,10):
+for i in range(0, 10):
     print(i)
