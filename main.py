@@ -73,4 +73,12 @@ def read_item(
 
 
 if __name__ == "__main__":
+    # 获取参数列表, 启动参数第一个作为端口号
+    import sys
+    args = sys.argv
+    if len(args) > 1:
+        port = int(args[1])
+    else:
+        port = 8000
+    print("port:", port)
     uvicorn.run(app, port=8000)
