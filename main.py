@@ -77,15 +77,11 @@ if __name__ == "__main__":
     # 获取参数列表, 启动参数第一个作为端口号
     import sys
 
-    args = sys.argv
     # 获取-- port参数
-    port = None
-    if "--port" in args:
-        port_index = args.index("--port")
-        if len(args) > port_index + 1:
-            port = int(args[port_index + 1])
-    if port is None:
+    args = sys.argv
+    if len(args) > 1:
+        port = int(args[1])
+    else:
         port = 8000
-
     print("port:", port)
     uvicorn.run(app, port=8000)
