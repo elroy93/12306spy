@@ -88,4 +88,4 @@ if __name__ == "__main__":
         port = 8000
 
     print("port:", port)
-    # uvicorn.run(app, port=8000)
+    uvicorn.run(app, port=8000)

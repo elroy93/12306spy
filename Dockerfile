@@ -15,7 +15,7 @@ ENV LANG C.UTF-8
 
 WORKDIR /app
 
-EXPOSE 7456
+EXPOSE 8080
 
 # 如果有传入HTTP_PORT参数，则使用传入的端口
 ENTRYPOINT ["python", "main.py", "--port", "8080"]
