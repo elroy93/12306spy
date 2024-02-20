@@ -54,7 +54,7 @@
             type="text"
             name="date"
             id="id-train-date"
-            placeholder="MM-dd"
+            placeholder="yyyy-MM-dd"
             autocomplete="off"
             onchange="setDateToCache()"
             class="layui-input" />
@@ -68,10 +68,10 @@
             id="train_id"
             name="filter_train_name"
             placeholder="选择指定车次"
-            value="D2923"
             lay-verify="required"
             autocomplete="off"
             lay-search
+            onchange="setTrainToCache()"
             class="layui-input" />
           <!-- <select name="filter_train_name" id="train-search-more">
             <option value="">请选择</option>
@@ -135,11 +135,9 @@
             elem: "#id-train-date",
             format: "yyyy-MM-dd", // 设置日期格式
             value: new Date(), // 设置默认日期为今天
-            change: function (value, date, endDate) {
-              // console.log(value); // 得到日期生成的值，如：2017-08-18
-              // console.log(date); // 得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
-              // console.log(endDate); // 得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
-              // setDateToCache();
+            done: function (value, date, endDate) {
+              console.log("date change", value, date, endDate);
+              setDateToCache();
             },
           });
         });
@@ -266,11 +264,13 @@
       function setDateToCache() {
         var date = document.getElementById("id-train-date").value;
         localStorage.setItem("id-train-date", date);
+        console.log("setDateToCache", date);
       }
 
       function setTrainToCache() {
         var train = document.getElementById("train_id").value;
         localStorage.setItem("train_id", train);
+        console.log("setTrainToCache", train);
       }
 
       // 在页面加载时，从缓存中获取值
