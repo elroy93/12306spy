@@ -1,6 +1,11 @@
 FROM python:3.12
-# 当前的文件都放到app文件夹下
-ADD . /app
+
+# 先复制 requirements.txt 文件并安装依赖
+COPY requirements.txt /tmp/
+RUN pip install -r /tmp/requirements.txt
+
+# 然后复制其余的文件
+COPY . /app
 
 # 默认使用上海时区 + 阿里源
 RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata && \
@@ -9,12 +14,8 @@ RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive t
 ENV LANG C.UTF-8
 
 WORKDIR /app
-RUN /usr/local/bin/pip3 install -r requirements.txt
 
 EXPOSE 7456
 
-# 设置默认端口为7456
-ENV HTTP_PORT 7456
-
-# 如果有传入httpport参数，则使用传入的端口
-ENTRYPOINT ["python", "main.py", "--port", "$HTTP_PORT"]
+# 如果有传入HTTP_PORT参数，则使用传入的端口
+ENTRYPOINT ["python", "main.py", "--port", "8080"]
