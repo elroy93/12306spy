@@ -1,1 +1,1 @@
-docker build -t 12306spy
+docker build -t 12306spy .
