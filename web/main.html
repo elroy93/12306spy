@@ -17,13 +17,15 @@
         <label class="layui-form-label">出发站</label>
         <div class="layui-input-block">
           <input
+            id="station_start"
             type="text"
             name="station_start"
             lay-verify="title"
             autocomplete="off"
             lay-verify="required"
             placeholder="赣榆"
-            value="赣榆"
+            value=""
+            onchange="setStartToCache()"
             class="layui-input" />
         </div>
       </div>
@@ -31,11 +33,13 @@
         <label class="layui-form-label">目标站</label>
         <div class="layui-input-block">
           <input
+            id="station_end"
             name="station_end"
             placeholder="常州"
-            value="常州"
+            value=""
             autocomplete="off"
             lay-verify="required"
+            onchange="setEndToCache()"
             class="layui-input" />
         </div>
       </div>
@@ -52,6 +56,7 @@
             id="id-train-date"
             placeholder="MM-dd"
             autocomplete="off"
+            onchange="setDateToCache()"
             class="layui-input" />
         </div>
       </div>
@@ -60,7 +65,7 @@
         <!-- 下拉菜单,通过query_trains接口查询 -->
         <div class="layui-input-block">
           <input
-            id="train-search-more"
+            id="train_id"
             name="filter_train_name"
             placeholder="选择指定车次"
             value="D2923"
@@ -123,13 +128,19 @@
         var form = layui.form;
         var dropdown = layui.dropdown;
 
-        layui.use(function () {
+        layui.use("laydate", function () {
           var laydate = layui.laydate;
           // 渲染
           laydate.render({
             elem: "#id-train-date",
             format: "yyyy-MM-dd", // 设置日期格式
             value: new Date(), // 设置默认日期为今天
+            change: function (value, date, endDate) {
+              // console.log(value); // 得到日期生成的值，如：2017-08-18
+              // console.log(date); // 得到日期时间对象：{year: 2017, month: 8, date: 18, hours: 0, minutes: 0, seconds: 0}
+              // console.log(endDate); // 得结束的日期时间对象，开启范围选择（range: true）才会返回。对象成员同上。
+              // setDateToCache();
+            },
           });
         });
 
@@ -239,6 +250,49 @@
           return false; // 阻止默认 form 跳转
         });
       });
+
+      function setStartToCache() {
+        var start = document.getElementById("station_start").value;
+        localStorage.setItem("start_station", start);
+        console.log("setStartToCache", start);
+      }
+
+      function setEndToCache() {
+        var end = document.getElementById("station_end").value;
+        localStorage.setItem("end_station", end);
+        console.log("setEndToCache", end);
+      }
+
+      function setDateToCache() {
+        var date = document.getElementById("id-train-date").value;
+        localStorage.setItem("id-train-date", date);
+      }
+
+      function setTrainToCache() {
+        var train = document.getElementById("train_id").value;
+        localStorage.setItem("train_id", train);
+      }
+
+      // 在页面加载时，从缓存中获取值
+      window.onload = function () {
+        var cachedStart = localStorage.getItem("start_station");
+        var cachedEnd = localStorage.getItem("end_station");
+        var cachedDate = localStorage.getItem("id-train-date");
+        var cachedTrain = localStorage.getItem("train_id");
+
+        if (cachedStart) {
+          document.getElementById("station_start").value = cachedStart;
+        }
+        if (cachedEnd) {
+          document.getElementById("station_end").value = cachedEnd;
+        }
+        if (cachedDate) {
+          document.getElementById("id-train-date").value = cachedDate;
+        }
+        if (cachedTrain) {
+          document.getElementById("train_id").value = cachedTrain;
+        }
+      };
     </script>
   </body>
 </html>
