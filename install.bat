@@ -44,11 +44,10 @@ powershell -command "Write-Host '     install success      ' -ForegroundColor Gr
 powershell -command "Write-Host '--------------------------' -ForegroundColor Green"
 
 :: 用jupyter notebook打开 main.ipynb
-
-powershell -command "Write-Host 'start jupyter notebook' -ForegroundColor Green"
+:: powershell -command "Write-Host 'start jupyter notebook' -ForegroundColor Green"
 ::jupyter notebook main.ipynb
 
-python main.py
+python main.py --port 8001
 
 ::打开浏览器 http://127.0.0.1:8000/
 start http://127.0.0.1:8000

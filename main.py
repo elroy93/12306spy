@@ -72,13 +72,20 @@ def read_item(
         return {"status": "fail", "data": str(e)}
 
 
+# ENTRYPOINT ["python", "main.py", "--port", "$HTTP_PORT"]
 if __name__ == "__main__":
     # 获取参数列表, 启动参数第一个作为端口号
     import sys
+
     args = sys.argv
-    if len(args) > 1:
-        port = int(args[1])
-    else:
+    # 获取-- port参数
+    port = None
+    if "--port" in args:
+        port_index = args.index("--port")
+        if len(args) > port_index + 1:
+            port = int(args[port_index + 1])
+    if port is None:
         port = 8000
+
     print("port:", port)
-    uvicorn.run(app, port=8000)
+    # uvicorn.run(app, port=8000)
