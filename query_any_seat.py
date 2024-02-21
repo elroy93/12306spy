@@ -145,6 +145,7 @@ def query_stop_station_list(
 
 
 def query_any_seat(station_start, station_end, date, filter_train_names=None):
+    print("query_any_seat", station_start, station_end, date, filter_train_names)
     response = httpx.post(
         "https://m.suanya.com/restapi/soa2/14666/json/GetBookingByStationV3ForPC",
         headers={
@@ -170,7 +171,7 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
             "DepartStation": station_start,
         },
     )
-    print(response.text)
+    # print(response.text)
     # 使用orgjson格式化输出
     text = response.text
     data = orjson.loads(text)
@@ -179,13 +180,30 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     if len(TrainItems_all) == 0:
         raise Exception("没有找到车次")
 
+    # 如果filter_train_names为空,则使用所有车次,直接返回transItems
+    if filter_train_names == None or len(filter_train_names) == 0:
+        train_items_df = transform_booking_train_items_info_to_dataframe(TrainItems_all)
+        train_items_df.insert(0, "起点站", station_start)
+        train_items_df.insert(1, "终点站", station_end)
+        # 增加一列,拼接http链接, 跳转到当前页面的?station_start=赣榆&station_end=上海&train_date=2024-02-22&train_id=D2131.
+        # http://localhost:8081/web/main.html?station_start=赣榆&station_end=上海&date=2024-02-22&filter_train_name=D2131
+        train_items_df.insert(
+            10,
+            "查询链接",
+            train_items_df.apply(
+                lambda x: f"/web/main.html?station_start={station_start}&station_end={station_end}&train_date={date}&filter_train_name={x['车次']}&auto_query=1",
+                axis=1,
+            ),
+        )
+        return train_items_df
+
     # filter_train_names
     TrainItems = [
         item for item in TrainItems_all if item["TrainName"] in filter_train_names
     ]
 
     if TrainItems == None or len(TrainItems) == 0:
-        raise Exception("没有找到车次")
+        raise Exception("没有找到符合条件的车次")
 
     train_items_df = transform_booking_train_items_info_to_dataframe(TrainItems)
     train_items_df.insert(0, "起点站", station_start)

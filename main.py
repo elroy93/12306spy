@@ -59,10 +59,11 @@ def read_item(
             return orjson.loads(data)
 
     print(station_start, station_end, date, filter_train_name)
+    filter_train_names = (
+        len(filter_train_name) > 0 and filter_train_name.split(",") or []
+    )
     try:
-        trains_df = query_any_seat(
-            station_start, station_end, date, [filter_train_name]
-        )
+        trains_df = query_any_seat(station_start, station_end, date, filter_train_names)
         trains_json_str = trains_df.to_json(orient="records", force_ascii=False)
         #     转json对象返回
         return {"status": "success", "data": orjson.loads(trains_json_str)}

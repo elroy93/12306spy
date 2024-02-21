@@ -53,7 +53,7 @@
           <input
             type="text"
             name="date"
-            id="id-train-date"
+            id="date"
             placeholder="yyyy-MM-dd"
             autocomplete="off"
             onchange="setDateToCache()"
@@ -65,10 +65,10 @@
         <!-- 下拉菜单,通过query_trains接口查询 -->
         <div class="layui-input-block">
           <input
-            id="train_id"
+            id="filter_train_name"
             name="filter_train_name"
-            placeholder="选择指定车次"
-            lay-verify="required"
+            placeholder="选择指定车次,否则查询所有车次直达车票"
+            lay-verify=""
             autocomplete="off"
             lay-search
             onchange="setTrainToCache()"
@@ -99,6 +99,7 @@
             type="submit"
             class="layui-btn"
             lay-submit
+            id="ID-btn-submit"
             lay-filter="demo-val">
             提交
           </button>
@@ -132,7 +133,7 @@
           var laydate = layui.laydate;
           // 渲染
           laydate.render({
-            elem: "#id-train-date",
+            elem: "#date",
             format: "yyyy-MM-dd", // 设置日期格式
             value: new Date(), // 设置默认日期为今天
             done: function (value, date, endDate) {
@@ -173,7 +174,21 @@
             data: [], // 使用空数组作为数据，这将清空表格
           });
           let query_start_time = new Date().getTime();
+          // 修改当前的url为新的url
+          let new_url =
+            "?station_start=" +
+            field.station_start +
+            "&station_end=" +
+            field.station_end +
+            "&date=" +
+            field.date +
+            "&filter_train_name=" +
+            field.filter_train_name;
+          console.log("new_url=", new_url);
+          console.log("field=", field);
+          window.history.pushState({}, 0, new_url);
 
+          // 发送请求
           $.get("/query_any_seat", field, function (d) {
             layer.close(loading);
             let query_end_time = new Date().getTime();
@@ -190,7 +205,7 @@
               var cols = [{ type: "numbers" }];
               for (let __key in train_index_0) {
                 let key = __key;
-                if (key === "车次链接") {
+                if (key.indexOf("链接") > 0) {
                   // link渲染
                   cols.push({
                     field: key,
@@ -251,46 +266,81 @@
 
       function setStartToCache() {
         var start = document.getElementById("station_start").value;
-        localStorage.setItem("start_station", start);
+        localStorage.setItem("station_start", start);
         console.log("setStartToCache", start);
       }
 
       function setEndToCache() {
         var end = document.getElementById("station_end").value;
-        localStorage.setItem("end_station", end);
+        localStorage.setItem("station_end", end);
         console.log("setEndToCache", end);
       }
 
       function setDateToCache() {
-        var date = document.getElementById("id-train-date").value;
-        localStorage.setItem("id-train-date", date);
+        var date = document.getElementById("date").value;
+        localStorage.setItem("date", date);
         console.log("setDateToCache", date);
       }
 
       function setTrainToCache() {
-        var train = document.getElementById("train_id").value;
-        localStorage.setItem("train_id", train);
+        var train = document.getElementById("filter_train_name").value;
+        localStorage.setItem("filter_train_name", train);
         console.log("setTrainToCache", train);
       }
 
       // 在页面加载时，从缓存中获取值
       window.onload = function () {
-        var cachedStart = localStorage.getItem("start_station");
-        var cachedEnd = localStorage.getItem("end_station");
-        var cachedDate = localStorage.getItem("id-train-date");
-        var cachedTrain = localStorage.getItem("train_id");
+        // 首先从url里面提取参数, 如果有的话,使用url中的参数
+        var url = window.location.href;
+        var start = url.match(/station_start=([^&]*)/);
+        var end = url.match(/station_end=([^&]*)/);
+        var date = url.match(/date=([^&]*)/);
+        var train = url.match(/filter_train_name=([^&]*)/);
+        var auto_query = url.match(/auto_query=([^&]*)/);
 
-        if (cachedStart) {
+        var cachedStart = localStorage.getItem("station_start");
+        var cachedEnd = localStorage.getItem("station_end");
+        var cachedDate = localStorage.getItem("date");
+        var cachedTrain = localStorage.getItem("filter_train_name");
+
+        console.log(
+          "start=",
+          start,
+          "end=",
+          end,
+          "date=",
+          date,
+          "train=",
+          train
+        );
+
+        if (start) {
+          document.getElementById("station_start").value = decodeURIComponent(
+            start[1]
+          );
+        } else if (cachedStart) {
           document.getElementById("station_start").value = cachedStart;
         }
-        if (cachedEnd) {
+        if (end) {
+          document.getElementById("station_end").value = decodeURIComponent(
+            end[1]
+          );
+        } else if (cachedEnd) {
           document.getElementById("station_end").value = cachedEnd;
         }
-        if (cachedDate) {
-          document.getElementById("id-train-date").value = cachedDate;
+        if (date) {
+          document.getElementById("date").value = date[1];
+        } else if (cachedDate) {
+          document.getElementById("date").value = cachedDate;
         }
-        if (cachedTrain) {
-          document.getElementById("train_id").value = cachedTrain;
+        if (train) {
+          document.getElementById("filter_train_name").value = train[1];
+        } else if (cachedTrain) {
+          document.getElementById("filter_train_name").value = cachedTrain;
+        }
+        if (auto_query != null && auto_query[1] === "1") {
+          console.log("auto_query=", auto_query);
+          document.getElementById("ID-btn-submit").click();
         }
       };
     </script>
