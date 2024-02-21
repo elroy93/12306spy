@@ -52,6 +52,8 @@ def query_booking_by_station_v3_for_pc_async(
 def transform_booking_train_items_info_to_dataframe(train_items: list):
     # 定义列名的中英文对照字典
     columns_chinese = {
+        "StartStationName": "起点站",
+        "EndStationName": "终点站",
         "train_number": "车次",
         "start_time": "开始时间",
         "end_time": "结束时间",
@@ -65,6 +67,8 @@ def transform_booking_train_items_info_to_dataframe(train_items: list):
     # 使用英文列名创建DataFrame
     data = [
         {
+            "StartStationName": item["StartStationName"],
+            "EndStationName": item["EndStationName"],
             "train_number": item["TrainName"],
             "start_time": item["StartTime"],
             "end_time": item["EndTime"],
@@ -171,7 +175,7 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
             "DepartStation": station_start,
         },
     )
-    # print(response.text)
+    print(response.text)
     # 使用orgjson格式化输出
     text = response.text
     data = orjson.loads(text)
@@ -183,15 +187,13 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     # 如果filter_train_names为空,则使用所有车次,直接返回transItems
     if filter_train_names == None or len(filter_train_names) == 0:
         train_items_df = transform_booking_train_items_info_to_dataframe(TrainItems_all)
-        train_items_df.insert(0, "起点站", station_start)
-        train_items_df.insert(1, "终点站", station_end)
         # 增加一列,拼接http链接, 跳转到当前页面的?station_start=赣榆&station_end=上海&train_date=2024-02-22&train_id=D2131.
         # http://localhost:8081/web/main.html?station_start=赣榆&station_end=上海&date=2024-02-22&filter_train_name=D2131
         train_items_df.insert(
             10,
             "查询链接",
             train_items_df.apply(
-                lambda x: f"/web/main.html?station_start={station_start}&station_end={station_end}&train_date={date}&filter_train_name={x['车次']}&auto_query=1",
+                lambda x: f"/web/main.html?station_start={x['起点站']}&station_end={x['终点站']}&train_date={date}&filter_train_name={x['车次']}&auto_query=1",
                 axis=1,
             ),
         )
@@ -206,8 +208,8 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
         raise Exception("没有找到符合条件的车次")
 
     train_items_df = transform_booking_train_items_info_to_dataframe(TrainItems)
-    train_items_df.insert(0, "起点站", station_start)
-    train_items_df.insert(1, "终点站", station_end)
+    # train_items_df.insert(0, "起点站", station_start)
+    # train_items_df.insert(1, "终点站", station_end)
     train_items_df
     train_item = TrainItems[0]
     # 修改起点和终点名称
@@ -293,9 +295,18 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
         xlist_item_train_items = query_booking_by_station_v3_for_pc(
             xlist_item_start_station, xlist_item_end_station, date
         )
+
         # 过滤出发车时间是之前dict中的时间的车次
         xlist_item_start_station_departure_time = (
             item_stop_list_station_name_departure_dict[xlist_item_start_station]
+        )
+
+        print(
+            "开始查询",
+            index,
+            xlist_item_start_station,
+            xlist_item_end_station,
+            xlist_item_start_station_departure_time,
         )
         xlist_item_train_items = [
             item
@@ -306,9 +317,13 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
         xlist_item_train_items_df = transform_booking_train_items_info_to_dataframe(
             xlist_item_train_items
         )
+        # 过滤出来起点站名字和 xlist_item_start_station一样的车次
+        xlist_item_train_items_df = xlist_item_train_items_df[
+            xlist_item_train_items_df["起点站"] == xlist_item_start_station
+        ]
         # 给df增加一列, 起点站和终点站,放到开头
-        xlist_item_train_items_df.insert(0, "起点站", xlist_item_start_station)
-        xlist_item_train_items_df.insert(1, "终点站", xlist_item_end_station)
+        # xlist_item_train_items_df.insert(0, "起点站", xlist_item_start_station)
+        # xlist_item_train_items_df.insert(1, "终点站", xlist_item_end_station)
         xlist_item_results.append(xlist_item_train_items_df)
         finished_index.append(index)
 
@@ -327,6 +342,8 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     xlist_item_results_df = pd.concat(xlist_item_results, ignore_index=True)
     # 增加原始车次列
     xlist_item_results_df.insert(0, "原始车次", train_item["TrainName"])
+    print("item_stop_station_names", item_stop_station_names)
+    print("xlist_item_results_df", xlist_item_results_df)
     # item_stop_station_names中有站名, 按照xlist_item_results_df中的终点站和起点站进行排序, 先按照站名在item_stop_station_names中越靠后则优先级越高. 终点站比较特殊,按照靠近配置中的终点站的距离排序.
     xlist_item_results_df["起点站优先级"] = xlist_item_results_df["起点站"].apply(
         lambda x: item_stop_station_names.index(x)
