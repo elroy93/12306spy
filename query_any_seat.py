@@ -245,10 +245,9 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     # 两个队列的叉乘
     print(start_station_index, middle_station_index, end_station_index)
     xlist = []
-    # index生成器
     index_generator = (i for i in range(0, 10000000))
-    for i in range(start_station_index, middle_station_index + 1):
-        for j in range(middle_station_index + 1, len(item_stop_station_names)):
+    for i in range(middle_station_index, start_station_index - 1, -1):
+        for j in range(len(item_stop_station_names) - 1, middle_station_index, -1):
             xlist.append([item_stop_station_names[i], item_stop_station_names[j]])
 
     xlist_df = pd.DataFrame(xlist, columns=["起点", "终点"])
