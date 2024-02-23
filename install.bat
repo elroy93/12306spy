@@ -47,10 +47,10 @@ powershell -command "Write-Host '--------------------------' -ForegroundColor Gr
 :: powershell -command "Write-Host 'start jupyter notebook' -ForegroundColor Green"
 ::jupyter notebook main.ipynb
 
-python main.py --port 8001
+python main.py --port 8081
 
-::打开浏览器 http://127.0.0.1:8000/
-start http://127.0.0.1:8000
+::打开浏览器 http://127.0.0.1:8081/
+start http://127.0.0.1:8081
 
 pause
 :: 退出虚拟环境
