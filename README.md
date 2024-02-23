@@ -23,18 +23,8 @@
 ## Docker 
 `docker run -d -p 8081:8080 registry.cn-hangzhou.aliyuncs.com/elroy93/12306spy:latest`
 
-## 配置
-需要指定起始站,终点站,日期,车次,以及需要过滤的车次.
-```python
-#起始站-终点站,日期,车次
-station_start = "赣榆"
-station_end = "常州"
-date = "2024-02-19"
-filter_train_names = ["D2923"] 
-```
-
-## 源码启动
-点击`install.bat`安装依赖, 打开`http://127.0.0.1:8000/web/main.html`即可使用`  
+## windows源码启动
+点击`install.bat`安装依赖, 打开`http://127.0.0.1:8081/web/main.html`即可使用`  
 - 出发站
 - 目标站
 - 日期
