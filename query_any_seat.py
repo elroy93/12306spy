@@ -179,7 +179,11 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     # 使用orgjson格式化输出
     text = response.text
     data = orjson.loads(text)
-    TrainItems_all = data["ResponseBody"]["TrainItems"]
+    TrainItems_all = None
+    try:
+        TrainItems_all = data["ResponseBody"]["TrainItems"]
+    except Exception as e:
+        raise Exception("服务器请求失败,请稍后再试")
 
     if len(TrainItems_all) == 0:
         raise Exception("没有找到车次")
