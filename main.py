@@ -50,7 +50,7 @@ def read_item(
     date = "2024-02-19"
     filter_train_names = ["D2923"]
 
-    http://127.0.0.1:8000/query_any_seat?station_start=赣榆&station_end=常州&date=2024-02-19&filter_train_name=D2923
+    http://127.0.0.1:8081/query_any_seat?station_start=赣榆&station_end=常州&date=2024-02-19&filter_train_name=D2923
     """
     if is_test:
         # 返回data.json的数据
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         if len(args) > port_index + 1:
             port = int(args[port_index + 1])
     if port is None:
-        port = 8000
+        port = 8081
 
     print("port:", port)
     uvicorn.run(app, host="0.0.0.0", port=port)
