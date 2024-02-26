@@ -49,7 +49,9 @@ def query_booking_by_station_v3_for_pc_async(
     query_booking_by_station_v3_for_pc(station_start, station_end, date)
 
 
-def transform_booking_train_items_info_to_dataframe(train_items: list):
+def transform_booking_train_items_info_to_dataframe(
+    train_items: list, should_transform=True
+):
     # 定义列名的中英文对照字典
     columns_chinese = {
         "StartStationName": "起点站",
@@ -63,6 +65,8 @@ def transform_booking_train_items_info_to_dataframe(train_items: list):
         "second_class_price": "二等座价格",
         "second_class_seats": "二等座余票量",
     }
+    if should_transform == False:
+        columns_chinese = {}
 
     # 使用英文列名创建DataFrame
     data = [
@@ -306,19 +310,24 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
         )
 
         print(
-            "开始查询",
+            "-----------------开始查询-----------------\r\n",
             index,
             xlist_item_start_station,
             xlist_item_end_station,
             xlist_item_start_station_departure_time,
         )
-        # 打印 xlist_item_train_items 的header
-        print("** headers ** ", xlist_item_train_items[0].keys())
+        # print(
+        #     transform_booking_train_items_info_to_dataframe(
+        #         xlist_item_train_items, should_transform=False
+        #     )
+        # )
+        # 过滤出来需要的信息
         xlist_item_train_items = [
             item
             for item in xlist_item_train_items
             if str(item["StartTime"]) == str(xlist_item_start_station_departure_time)
             and item["EndStationName"] == xlist_item_end_station
+            and item["StartStationName"] == xlist_item_start_station
         ]
 
         xlist_item_train_items_df = transform_booking_train_items_info_to_dataframe(
