@@ -492,8 +492,7 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     return xlist_item_results_df_has_rest
 
 
-# 赣榆 常州 2024-02-07 D2923
-if __name__ == "__main__":
+def exe_main():
     station_start = "赣榆"
     station_end = "常州"
     date = "2024-02-07"
@@ -502,3 +501,8 @@ if __name__ == "__main__":
     # df转json数组
     trains_json = trains_df.to_json(orient="records", force_ascii=False)
     print(trains_json)
+
+
+# 赣榆 常州 2024-02-07 D2923
+if __name__ == "__main__":
+    exe_main()
