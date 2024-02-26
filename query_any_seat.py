@@ -312,10 +312,13 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
             xlist_item_end_station,
             xlist_item_start_station_departure_time,
         )
+        # 打印 xlist_item_train_items 的header
+        print("** headers ** ", xlist_item_train_items[0].keys())
         xlist_item_train_items = [
             item
             for item in xlist_item_train_items
             if str(item["StartTime"]) == str(xlist_item_start_station_departure_time)
+            and item["EndStationName"] == xlist_item_end_station
         ]
 
         xlist_item_train_items_df = transform_booking_train_items_info_to_dataframe(
