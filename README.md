@@ -45,3 +45,9 @@
 ## ide推荐
 - pycharm
 - vscode + jupyter插件
+
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=elroy93/12306spy&type=Date)](https://star-history.com/#elroy93/12306spy&Date)
+
