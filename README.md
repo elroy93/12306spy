@@ -23,12 +23,17 @@
 ## Docker 
 `docker run -d -p 8081:8080 registry.cn-hangzhou.aliyuncs.com/elroy93/12306spy:latest`
 
-## windows源码启动
-点击`install.bat`安装依赖, 打开`http://127.0.0.1:8081/web/main.html`即可使用`  
-- 出发站
-- 目标站
-- 日期
-- 车次
+## windows/mac源码启动
+- windows : 点击`install.bat`安装依赖
+- mac :
+  ```shell
+  cd 12306spy
+  python -m venv venv
+  source ./venv/bin/activate
+  pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+  python main.py --port 8081
+  ```
+打开`http://127.0.0.1:8081/web/main.html`即可使用`  
 > 红色的部分是需要着重关注的地方。
 > 
 > `提前买`: 在起点站前多买N站之前的票
