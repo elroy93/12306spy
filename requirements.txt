@@ -1,9 +1,9 @@
-black 
-decorator 
-vthread
-orjson~=3.9.13
-pandas~=2.2.0
+black
 jupyter
-httpx
-fastapi
-uvicorn
+decorator~=5.1.1
+vthread~=0.1.5
+orjson~=3.9.15
+pandas~=2.2.0
+httpx~=0.27.0
+fastapi~=0.110.0
+uvicorn~=0.28.0
