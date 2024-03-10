@@ -1,15 +1,13 @@
-FROM python:3.12
+FROM python:3.12.1-alpine3.19
 
 # 先复制 requirements.txt 文件并安装依赖
 COPY requirements.txt /tmp/
-RUN pip install -r /tmp/requirements.txt
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && \
+    apk add  --no-cache gcc python3-dev linux-headers musl-dev && \
+    pip install -r /tmp/requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 # 然后复制其余的文件
 COPY . /app
-
-# 默认使用上海时区 + 阿里源
-RUN echo "Asia/Shanghai" > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata && \
-    echo "deb https://mirrors.aliyun.com/debian/ buster main non-free contrib" > /etc/apt/sources.list
 
 ENV LANG C.UTF-8
 
