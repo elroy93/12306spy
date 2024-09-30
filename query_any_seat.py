@@ -125,7 +125,13 @@ def query_stop_station_list(
     return train_stop_list
 
 
-def query_any_seat(station_start, station_end, date, filter_train_names=None):
+def query_any_seat(
+    station_start,
+    station_end,
+    date,
+    filter_train_names=None,
+    time_range="00:00 - 23:59",
+):
     print("query_any_seat", station_start, station_end, date, filter_train_names)
 
     trainItems_all = []
@@ -147,6 +153,20 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     if len(trainItems_all) == 0:
         raise Exception("没有找到车次")
 
+        # 根据时间进行过滤
+    if time_range:
+        time_range_list = time_range.split(" - ")
+        print("time_range_list", time_range_list)
+        start_time = time_range_list[0]
+        end_time = time_range_list[1]
+        trainItems_all = [
+            item
+            for item in trainItems_all
+            if start_time <= item["StartTime"] <= end_time
+        ]
+
+    if len(trainItems_all) == 0:
+        raise Exception("没有找到车次")
     # 如果没有输入车次,则返回所有车次
     if utils.is_empty(filter_train_names) or utils.is_blank(filter_train_names[0]):
         train_items_df = transform_booking_train_items_info_to_dataframe(trainItems_all)
@@ -165,6 +185,7 @@ def query_any_seat(station_start, station_end, date, filter_train_names=None):
     train_items = [
         item for item in trainItems_all if item["TrainName"] in filter_train_names
     ]
+
     if utils.is_empty(train_items):
         raise Exception("没有找到符合条件的车次")
     # train_items_df = transform_booking_train_items_info_to_dataframe(train_items)
@@ -497,7 +518,13 @@ def exe_main():
     station_end = "常州"
     date = "2024-02-07"
     filter_train_names = ["D2923"]
-    trains_df = query_any_seat(station_start, station_end, date, filter_train_names)
+    trains_df = query_any_seat(
+        station_start,
+        station_end,
+        date,
+        filter_train_names,
+        "00:00 - 23:59",
+    )
     # df转json数组
     trains_json = trains_df.to_json(orient="records", force_ascii=False)
     print(trains_json)

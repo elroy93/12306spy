@@ -42,13 +42,19 @@ def read_item(station_start: str, station_end: str, date: str):
 
 @app.get("/query_any_seat")
 def read_item(
-    station_start: str, station_end: str, date: str, filter_train_name, is_test=False
+    station_start: str,
+    station_end: str,
+    date: str,
+    filter_train_name,
+    is_test=False,
+    time_range="00:00 - 23:59",
 ):
     """
-    station_start = "赣榆"
-    station_end = "常州"
-    date = "2024-02-19"
-    filter_train_names = ["D2923"]
+    station_start: 上海
+    station_end: 溧阳
+    date: 2024-10-01
+    time_range: 13:00 - 15:00
+    filter_train_name:
 
     http://127.0.0.1:8081/query_any_seat?station_start=赣榆&station_end=常州&date=2024-02-19&filter_train_name=D2923
     """
@@ -63,7 +69,9 @@ def read_item(
         len(filter_train_name) > 0 and filter_train_name.split(",") or []
     )
     try:
-        trains_df = query_any_seat(station_start, station_end, date, filter_train_names)
+        trains_df = query_any_seat(
+            station_start, station_end, date, filter_train_names, time_range
+        )
         trains_json_str = trains_df.to_json(orient="records", force_ascii=False)
         #     转json对象返回
         return {"status": "success", "data": orjson.loads(trains_json_str)}
@@ -88,5 +96,5 @@ if __name__ == "__main__":
     if port is None:
         port = 8081
 
-    print("port:", port)
+    print(f"open : http://127.0.0.1:{port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
