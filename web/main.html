@@ -8,12 +8,21 @@
     </title>
     <!-- 请勿在项目正式环境中引用该 layui.css 地址 -->
     <link href="/web/layui/css/layui.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 <body>
 <div class="layui-progress" style="margin: 15px 0 30px">
     <div class="layui-progress-bar" lay-percent="100%">
     </div>
 </div>
+<!--左上角增加一个github的链接-->
+<div class="github-link">
+    <a href="https://github.com/elroy93/12306spy" target="_blank" title="前往github">
+        <i class="fab fa-github"></i>
+    </a>
+</div>
+
 <form class="layui-form" action="">
     <div class="layui-form-item">
         <label class="layui-form-label">
@@ -449,23 +458,54 @@
     a:link {
         color: blue; /*未访问的链接颜色*/
     }
-
     a:visited {
         color: purple; /*已访问的链接颜色*/
     }
-
     a:hover {
         color: #0be999; /*鼠标移动到链接的颜色*/
         text-decoration: underline;
     }
-
     a:active {
         color: orange; /*鼠标点击时的颜色*/
     }
-
     a {
         text-decoration: none; /*去掉下划线*/
     }
+    .github-link {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        z-index: 1000; /* 确保在最上层 */
+        width: 0;
+        height: 0;
+        border-top: 60px solid rgba(51, 51, 51, 0.88); /* 三角形的颜色和大小 */
+        border-right: 60px solid transparent; /* 三角形右边透明 */
+    }
+
+    .github-link a {
+        position: absolute;
+        top: -60px; /* 调整文字或图标的位置 */
+        left: 0;
+        width: 60px; /* 与三角形的大小匹配 */
+        height: 60px;
+        display: flex; /* 使用 flex 布局 */
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+        color: #fff; /* 图标颜色 */
+        text-decoration: none;
+        font-size: 16px; /* 图标大小 */
+        transition: background-color 0.3s;
+    }
+
+    .github-link a:hover {
+        background-color: rgba(85, 85, 85, 0.02); /* 悬停时的背景颜色 */
+    }
+
+    .github-link i {
+        font-size: 40px; /* 图标大小 */
+    }
+
+
 </style>
 </body>
 
